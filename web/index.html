@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Mural</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #message-board {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .message {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .title {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <img src="static/logo.png" width="300" height="auto" class="title">
+    <form id="message-form">
+        <textarea id="message-input" rows="4" cols="90" placeholder="Write your message here..."></textarea>
+        <br>
+        <button type="submit">Post Message</button>
+    </form>
+    <div id="message-board"></div>
+
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://mpwubzafhlgzzshomria.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wd3ViemFmaGxnenpzaG9tcmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcxODE3MTksImV4cCI6MjA0Mjc1NzcxOX0.GIteGPVzy08OlIRVk7kVOFaZBBkFgjfmWocCBC0HHp4';
+        const esupabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const messageBoard = document.getElementById('message-board');
+
+        // Function to load messages
+        async function loadMessages() {
+            const { data, error } = await esupabase
+                .from('transformed_messages')
+                .select('*')
+                .order('created_on', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching messages:', error);
+                return;
+            }
+
+            messageBoard.innerHTML = '';
+            data.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.textContent = message.transformed_text;
+                messageBoard.appendChild(messageElement);
+            });
+        }
+
+        // Function to post a new message
+        async function postMessage(content) {
+            const { data, error } = await esupabase
+                .from('messages')
+                .insert([content]);
+
+            if (error) {
+                console.error('Error posting message:', error);
+                return;
+            }
+
+            messageInput.value = '';
+            loadMessages();
+        }
+
+        // Event listener for form submission
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (content) {
+                await postMessage({
+                    message: content
+                });
+            }
+        });
+
+        // Load messages on page load
+        loadMessages();
+    </script>
+</body>
+</html>

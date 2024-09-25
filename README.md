@@ -1,4 +1,4 @@
-<img src="./static/logo.png" alt="Fino-chan Logo" width="300" height="auto">
+<img src="./web/static/logo.png" alt="Fino-chan Logo" width="300" height="auto">
 
 ## About
 
