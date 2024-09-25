@@ -10,10 +10,10 @@ The model-generated messages will be posted in the forum.
 
 ## Tech Stack
 
-- `next.js` frontend (no backend)
+- Basic HTML/JS/CSS frontend. In the future we may shift to `next.js` & `React` if required.
 - `supabase` for storage. 
-- A Python app that runs on the `supabase` database, and handles the moderation and the language model.
-- `OpenAI` for the language model, `ChatGPT`.
+- A Python app that runs on the `supabase` database, and handles the content moderation with the help of the language model.
+- The `OpenAI` module for calling the language model, `ChatGPT`.
 
 
 ## Milestones
