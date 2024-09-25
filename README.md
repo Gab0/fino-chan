@@ -1,4 +1,4 @@
-![Fino-chan Logo](./logo.png)
+<img src="./static/logo.png" alt="Fino-chan Logo" width="300" height="auto">
 
 ## About
 
