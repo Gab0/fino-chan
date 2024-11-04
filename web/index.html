@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Mural</title>
+    <title>fino-chan</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
@@ -28,30 +28,92 @@
             margin-left: auto;
             margin-right: auto;
         }
+        .message-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            max-width: 100%;
+        }
+        .message-image {
+            padding: 1em;
+            padding-top: 0.2em;
+            border-radius: 25% 10%;
+            max-width: 33%;
+
+           -webkit-transition: transform 0.5s ease-in-out;
+           -moz-transition:transform 0.5s ease-in-out;
+           -ms-transition:transform 0.5s ease-in-out;
+        }
+        .message-image:hover {
+           -moz-transform: scale(2.5) translateX(5em);
+           -webkit-transform: scale(2.5) translateX(5em);
+           -o-transform: scale(2.5) translateX(5em);
+           -ms-transform: scale(2.5) translateX(5em);
+           -webkit-transform: scale(2.5) translateX(5em);
+           transform: scale(2.5) translateX(5em);
+
+           -webkit-transition: transform 0.5s ease-in-out;
+           -moz-transition:transform 0.5s ease-in-out;
+           -ms-transition:transform 0.5s ease-in-out;
+        }
+        .message-input {
+            width: 100%;
+            box-sizing: border-box; /* Ensures padding and border are included in width */
+        }
+        #queue-display {
+            padding: 0.5em;
+        }
+
     </style>
 </head>
 <body>
     <img src="static/logo.png" width="300" height="auto" class="title">
     <form id="message-form">
-        <textarea id="message-input" rows="4" cols="90" placeholder="Write your message here..."></textarea>
+        <textarea class="message-input" id="message-input" rows="4" cols="90" placeholder=""></textarea>
         <br>
         <button type="submit">Post Message</button>
     </form>
+    <div id="queue-display"></div>
     <div id="message-board"></div>
 
     <script>
         // Initialize Supabase client
         const supabaseUrl = 'https://mpwubzafhlgzzshomria.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wd3ViemFmaGxnenpzaG9tcmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcxODE3MTksImV4cCI6MjA0Mjc1NzcxOX0.GIteGPVzy08OlIRVk7kVOFaZBBkFgjfmWocCBC0HHp4';
-        const esupabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const db = supabase.createClient(supabaseUrl, supabaseKey);
 
         const messageForm = document.getElementById('message-form');
         const messageInput = document.getElementById('message-input');
         const messageBoard = document.getElementById('message-board');
+        const queueDisplay = document.getElementById('queue-display');
+
+        function getImageUrl(message, message_images) {
+
+            const placeholder = "https://placehold.co/600x600/EEE/31343C";
+
+            //const matched_images1 = message_images.filter(
+            //    message_image => message.message_images.includes(message_image.id)
+           // )
+
+            const matched_images = message_images.filter(
+                message_image => message_image.transformed_message_id == message.id
+            )
+
+            if (matched_images.length === 0){
+                return placeholder;
+            }
+
+            //if (message.created_on - Date.now() < 2000) {
+            //    return matched_images[0].url;
+           // }
+
+            return `images/${matched_images[0].image_id}.png`;
+
+        }
 
         // Function to load messages
         async function loadMessages() {
-            const { data, error } = await esupabase
+            const { data, error } = await db
                 .from('transformed_messages')
                 .select('*')
                 .order('created_on', { ascending: false });
@@ -61,18 +123,37 @@
                 return;
             }
 
+            const message_images_response = await db
+                .from('message_images')
+                .select('*');
+
+            const message_images = message_images_response.data;
+
+            const fila = await db.rpc("get_queue_size");
+            console.log(fila);
+            queueDisplay.innerHTML = `Fila: ${fila.data} `
             messageBoard.innerHTML = '';
             data.forEach(message => {
                 const messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-                messageElement.textContent = message.transformed_text;
+                messageElement.classList.add('message-container');
+
+                const imageElement = document.createElement('img');
+                imageElement.classList.add('message-image');
+                imageElement.src = getImageUrl(message, message_images);
+
+                const messageContentsElement = document.createElement('div');
+                messageContentsElement.classList.add('message');
+                messageContentsElement.textContent = message.transformed_text;
+
+                messageElement.appendChild(imageElement);
+                messageElement.appendChild(messageContentsElement);
                 messageBoard.appendChild(messageElement);
             });
         }
 
         // Function to post a new message
         async function postMessage(content) {
-            const { data, error } = await esupabase
+            const { data, error } = await db
                 .from('messages')
                 .insert([content]);
 

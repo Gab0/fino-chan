@@ -1,7 +1,10 @@
+from typing import List
 
 import os
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.ext.mutable import MutableList
+
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -39,6 +42,9 @@ class TransformedMessage(Base):
     original_message_id = Column(Integer, ForeignKey('messages.id'))
     
     original_message = relationship("Message", back_populates="transformed_messages")
+    prompt_id = Column(Integer, ForeignKey('prompts.id'))
+
+    message_images = Column(MutableList.as_mutable(Integer), ForeignKey('message_images.id'))
 
 
 class Thread(Base):
@@ -59,3 +65,23 @@ class User(Base):
     created_on = Column(DateTime(timezone=True), server_default=func.now())
 
     messages = relationship("Message", back_populates="user")
+
+
+class Image(Base):
+    __tablename__ = 'message_images'
+
+    id = Column(Integer, primary_key=True)
+    url = Column(String, nullable=False)
+    image_id = Column(String, nullable=False)
+    created_on = Column(DateTime(timezone=True), server_default=func.now())
+
+    revised_prompt = Column(String, nullable=True)
+    transformed_message_id = Column(Integer, ForeignKey('transformed_messages.id'))
+
+
+class Prompt(Base):
+    __tablename__ = 'prompts'
+
+    id = Column(Integer, primary_key=True)
+    body = Column(String, nullable=False)
+    created_on = Column(DateTime(timezone=True), server_default=func.now())
