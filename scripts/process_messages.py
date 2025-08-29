@@ -142,7 +142,7 @@ def generate_image(tm: database.TransformedMessage, session):
 
 if __name__ == "__main__":
     read_env_file(".env")
-    MAX_MPH = 5
+    MAX_MPH = 20
     client = OpenAI()
     Session = sessionmaker(bind=database.get_engine())
     while True:
