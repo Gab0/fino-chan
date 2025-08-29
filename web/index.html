@@ -134,6 +134,9 @@
             queueDisplay.innerHTML = `Fila: ${fila.data} `
             messageBoard.innerHTML = '';
             data.forEach(message => {
+                if (message.transformed_text == '🍷') {
+                    return;
+                }
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message-container');
 
