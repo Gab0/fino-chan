@@ -106,7 +106,10 @@ def check_messages(max_number: int):
         if m.transformed_messages[0].message_images:
             continue
 
-        generate_image(tm, session)
+        try:
+            generate_image(tm, session)
+        except Exception as e:
+            print(f"Error while generating image: {e}")
 
     session.close()
 
