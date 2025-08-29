@@ -85,7 +85,11 @@ def check_messages(max_number: int):
             print("Aborting checks.")
             break
 
-        transformed_text = translate_message(m.message, system_prompt.body)
+        try:
+            transformed_text = translate_message(m.message, system_prompt.body)
+        except Exception as e:
+            print("Error while transforming message: {e}")
+            transformed_text = "🍷"
         print(transformed_text)
         tm = database.TransformedMessage(
             transformed_text=transformed_text,
