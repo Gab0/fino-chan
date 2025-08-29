@@ -50,7 +50,7 @@ def get_transformed_count():
 def translate_message(text, system_prompt):
     """Translate a message using OpenAI API."""
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="o3",
         messages=[
             {
                 "role": "system",
