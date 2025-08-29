@@ -70,9 +70,9 @@ def check_messages(max_number: int):
     session = Session()
     messages = session.query(database.Message).filter(~database.Message.transformed_messages.any()).all()
     system_prompt = session.query(database.Prompt).all()[0]
-    
+
     print(f"Found {len(messages)} messages to transform")
-    
+
     for m in messages:
         print(m.message)
         print(m.transformed_messages)
